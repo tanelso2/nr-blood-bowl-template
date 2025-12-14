@@ -1,3 +1,4 @@
+<!-- vim: set ts=2 sw=2: -->
 <template>
   <setting id="includeModels" label="Models" type="checkbox" default="true" />
   <setting id="debug" label="Debug Mode" type="checkbox" default="false" />
@@ -225,37 +226,34 @@
     <!-- Rules -->
     <if type="has-rule" recursive="true">
       <or type="has-profile" recursive="true" value="{{ruleProfiles}}" />
-      <div type="card">
-        <div class="rules">
-          <forces>
-            <if type="has-rule">
-              <div class="force removable"><span class="force-name">{{name}}</span> <span
-                  class="force-catalogue">({{catalogue}})</span>
-                <rules recursive="false">
-                  <div class="rule nested removable">
-                    <span class="rule-name">{{name}}</span>
-                    <span class="rule-desc" type="markdown">{{description}}</span>
-                  </div>
-                </rules>
+      <forces>
+        <if type="has-rule">
+          <div class="force removable">
+            <span class="force-name">{{name}}</span>
+            <span class="force-catalogue">({{catalogue}})</span>
+            <rules recursive="false">
+              <div class="rule nested removable">
+                <span class="rule-name">{{name}}</span>
+                <span class="rule-desc" type="markdown">{{description}}</span>
               </div>
-            </if>
-          </forces>
-          <rules skip-forces="true">
-            <div class="rule removable">
-              <span class="rule-name">{{name}}</span>
-              <span class="rule-desc" type="markdown">{{description}}</span>
-            </div>
-          </rules>
-          <profiles include="{{ruleProfiles}}">
-            <div class="rule removable">
-              <span class="rule-name">{{name}}</span>
-              <characteristics>
-                <span class="rule-desc" type="markdown">{{value}}</span>
-              </characteristics>
-            </div>
-          </profiles>
+            </rules>
+          </div>
+        </if>
+      </forces>
+      <rules skip-forces="true">
+        <div class="rule removable">
+          <span class="rule-name">{{name}}</span>
+          <span class="rule-desc" type="markdown">{{description}}</span>
         </div>
-      </div>
+      </rules>
+      <profiles include="{{ruleProfiles}}">
+        <div class="rule removable">
+          <span class="rule-name">{{name}}</span>
+          <characteristics>
+            <span class="rule-desc" type="markdown">{{value}}</span>
+          </characteristics>
+        </div>
+      </profiles>
     </if>
   </div>
 </template>
