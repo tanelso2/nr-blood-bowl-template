@@ -42,15 +42,15 @@
         <tr class="section card-header">
           <td>
             <span class="costs">
-              {% for cost in player.costs %}
+              {% for k,v in player.costs.items() %}
                 <span class="cost">
-                  <span>{{ cost.value }}</span>
-                  <span>{{ cost.name }}</span>
+                  <span>{{ v }}</span>
+                  <span>{{ k }}</span>
                 </span>
               {% endfor %}
             </span>
-            {% if player.customName is defined %}
-              <span class="custom-name">{{ player.customName }}</span>
+            {% if player.custom_name %}
+              <span class="custom-name">{{ player.custom_name }}</span>
             {% endif %}
             <span class="name">{{ player.name }}</span>
             {% if player.dupeCount is defined and player.dupeCount > 1 %}
@@ -60,28 +60,22 @@
         </tr>
         <tr class="section profile-row profiles group">
           <td>
-            {% for profile in player.profiles %}
-              <table class="profile-group group removable">
-                <tr class="header profile">
-                  <td class="header name cell">
-                    <span>{{ profile.typeName }}</span>
-                  </td>
-                  {% for c in profile.characteristics %}
-                  <td class="header characteristic small cell data">
-                    <span class="header value">{{ c.name }}</span>
-                  </td>
-                  {% endfor %}
-                </tr>
-                <tr class="section profile row removable">
-                  <td class="name cell">{{ profile.name }}</td>
-                  {% for c in profile.characteristics %}
-                  <td class="characteristic small cell data">
-                    <span>{{ c['$text'] | md }}</span>
-                  </td>
-                  {% endfor %}
-                </tr>
-              </table>
-            {% endfor %}
+            <table class="profile-group group removable">
+              <tr class="header profile">
+                {% for col in COLUMN_ORDER %}
+                <td class="header characteristic small cell data">
+                  <span class="header value">{{ col }}</span>
+                </td>
+                {% endfor %}
+              </tr>
+              <tr class="section profile row removable">
+                {% for col in COLUMN_ORDER %}
+                <td class="characteristic small cell data">
+                  <span>{{ player.characteristics[col] | default('') | md }}</span>
+                </td>
+                {% endfor %}
+              </tr>
+            </table>
           </td>
         </tr>
         <tr class="section card-rules card-row">
