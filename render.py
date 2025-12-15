@@ -4,6 +4,17 @@ import json
 from pprint import pprint
 from typing import Any, Callable, Iterable, Optional
 
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+
+
+def render(**context) -> str:
+    env = Environment(
+        loader=FileSystemLoader('templates'),
+        autoescape=select_autoescape()
+    )
+    template = env.get_template('bb_cards.html.j2')
+    return template.render(**context)
+
 
 def get_selections(data: dict) -> list[dict]:
     ret = []
@@ -64,6 +75,40 @@ def get_players(data: dict) -> list[dict]:
     return groups.get('Player', [])
 
 
+def team_management_options(data: dict):
+    selections = get_selections(data)
+    groups = group_by(selections, primary_category)
+    options = groups.get('Team Management', [])
+    other_options = []
+    league = None
+    special_rules = None
+    for o in options:
+        if o['name'] == 'Team League':
+            league = o['selections'][0]['name']
+        elif o['name'] == 'Special Rules':
+            special_rules = o
+        else:
+            other_options.append(o)
+    other_options.sort(key=lambda x: x['name'])
+    return league, special_rules, other_options
+
+
+def render_team(data: dict, include_css=True) -> str:
+    rules = get_rules(data)
+    players = get_players(data)
+    name = data['roster']['name']
+    tv = data['roster']['costs'][0]['value']
+    league, special_rules, options = team_management_options(data)
+    return render(name=name, 
+                  tv=tv,
+                  league=league,  
+                  special_rules=special_rules,
+                  rules=rules, 
+                  players=players, 
+                  team_management_options=options, 
+                  include_css=include_css)
+
+
 if __name__ == '__main__':
     import sys
     in_file = sys.argv[1]
@@ -71,5 +116,6 @@ if __name__ == '__main__':
         data = json.load(f)
     selections = get_selections(data)
     groups = group_by(selections, primary_category)
-    pprint(get_rules(data))
-    pprint(get_players(data))
+    print(render_team(data, include_css=False))
+    with open('out.html', 'w') as f:
+        f.write(render_team(data))
