@@ -5,6 +5,7 @@ from pprint import pprint
 from typing import Any, Callable, Iterable, Optional
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from markdown_it import MarkdownIt
 
 
 def render(**context) -> str:
@@ -12,6 +13,8 @@ def render(**context) -> str:
         loader=FileSystemLoader('templates'),
         autoescape=select_autoescape()
     )
+    md = MarkdownIt()
+    env.filters['md'] = md.render
     template = env.get_template('bb_cards.html.j2')
     return template.render(**context)
 
@@ -86,7 +89,10 @@ def team_management_options(data: dict):
         if o['name'] == 'Team League':
             league = o['selections'][0]['name']
         elif o['name'] == 'Special Rules':
-            special_rules = o
+            special_rules = []
+            for sr in o['selections']:
+                special_rules.extend(sr.get('rules', []))
+            special_rules.sort(key=lambda x: x['name'])
         else:
             other_options.append(o)
     other_options.sort(key=lambda x: x['name'])

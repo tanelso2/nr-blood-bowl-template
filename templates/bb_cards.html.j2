@@ -21,110 +21,100 @@
     {% endfor %}
   </div>
 
+  <!-- Special Rules -->
+  {% if special_rules %}
+  <div class="special-rules">
+    <div class="section-header">Special Rules</div>
+    {% for rule in special_rules %}
+    <div class="rule removable">
+      <span class="rule-name">{{ rule.name }}</span>
+      <span class="rule-desc">{{ rule.description | md }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
 
   <div class="section cards">
     <!-- Players -->
-    {% for unit in units %}
+    {% for player in players %}
     <div class="unit card-wrapper" type="card">
       <table class="section card movable">
         <tr class="section card-header">
           <td>
             <span class="costs">
-              <costs>
+              {% for cost in player.costs %}
                 <span class="cost">
-                  <span>{{ value }}</span>
+                  <span>{{ cost.value }}</span>
                   <span>{{ cost.name }}</span>
                 </span>
-              </costs>
+              {% endfor %}
             </span>
-            <if field="customName">
-              <span class="custom-name">{{customName}}</span>
-            </if>
-            <span class="name">{{name}}</span>
-            <if field="dupeCount" type=">" value="1">
-              <span class="count">{{dupeCount}}</span>
-            </if>
+            {% if player.customName is defined %}
+              <span class="custom-name">{{ player.customName }}</span>
+            {% endif %}
+            <span class="name">{{ player.name }}</span>
+            {% if player.dupeCount is defined and player.dupeCount > 1 %}
+              <span class="count">{{ player.dupeCount }}</span>
+            {% endif %}
           </td>
         </tr>
-        <entries max="1" self="false">
-          <if field="type" type="equals" value="unit">
-            <tr class="section card-units card-row group">
-              <td>
-                <span class="header secondary cell">
-                  <span class="header name">Units</span>
-                </span>
-                <div class="secondaries cell">
-                  <unit.entries self="false">
-                    <if field="type" type="equals" value="unit">
-                      <span class="name">{{ amount }}x {{ name}}</span>
-                    </if>
-                  </unit.entries>
-                </div>
-              </td>
-            </tr>
-          </if>
-        </entries>
         <tr class="section profile-row profiles group">
           <td>
-            <profiles grouped="true" exclude="{{ruleProfiles}}">
+            {% for profile in player.profiles %}
               <table class="profile-group group removable">
-                <items max="1">
-                  <tr class="header profile">
-                    <td class="header name cell">
-                      <span>{{typeName}}</span>
-                      <if field="group">
-                        ({{group}})
-                      </if>
-                    </td>
-                    <characteristics>
-                      <td class="header characteristic small cell data">
-                        <span class="header value">{{name}}</span>
-                      </td>
-                    </characteristics>
-                  </tr>
-                </items>
-                <items>
-                  <tr class="section profile row removable">
-                    <td class="name cell">{{name}}</td>
-                    <characteristics>
-                      <td class="characteristic small cell data">
-                        <span type="markdown">{{value}}</span>
-                      </td>
-                    </characteristics>
-                  </tr>
-                </items>
+                <tr class="header profile">
+                  <td class="header name cell">
+                    <span>{{ profile.typeName }}</span>
+                  </td>
+                  {% for c in profile.characteristics %}
+                  <td class="header characteristic small cell data">
+                    <span class="header value">{{ c.name }}</span>
+                  </td>
+                  {% endfor %}
+                </tr>
+                <tr class="section profile row removable">
+                  <td class="name cell">{{ profile.name }}</td>
+                  {% for c in profile.characteristics %}
+                  <td class="characteristic small cell data">
+                    <span>{{ c['$text'] | md }}</span>
+                  </td>
+                  {% endfor %}
+                </tr>
               </table>
-            </profiles>
+            {% endfor %}
           </td>
         </tr>
         <tr class="section card-rules card-row">
           <td>
-            <profiles include-rules="true" grouped="true" include="{{ruleProfiles}}">
               <div class="profiles profile-row profiles group">
                 <span class="header secondary cell">
-                  <items max="1">
-                    <span class="name nowrap">{{typeName}}</span>
-                  </items>
+                  <span class="name nowrap">Rules</span>
                 </span>
                 <span class="secondaries cell">
-                  <items><span class="name">{{name}}</span></items>
+                  {% for rule in player.rules %}
+                  <span class="name">{{ rule.name }}</span>
+                  {% endfor %}
                 </span>
               </div>
-            </profiles>
           </td>
         </tr>
+        {#
+        <!-- Categories -->
         <tr class="section card-keywords card-row group">
           <td>
             <span class="header secondary cell">
               <span class="header name">Categories</span>
             </span>
             <div class="secondaries cell">
-              <secondaries>
-                <span class="secondary"><span class="name">{{name}}</span></span>
-              </secondaries>
+              {% for category in player.categories %}
+                <span class="secondary">
+                  <span class="name">{{ category.name }}</span>
+                </span>
+              {% endfor %}
             </div>
           </td>
         </tr>
+        #}
       </table>
     </div>
     {% endfor %}
@@ -133,7 +123,7 @@
     {% for rule in rules %}
     <div class="rule removable">
       <span class="rule-name">{{ rule.name }}</span>
-      <span class="rule-desc" type="markdown">{{ rule.description }}</span>
+      <span class="rule-desc">{{ rule.description | md }}</span>
     </div>
     {% endfor %}
 </body>
