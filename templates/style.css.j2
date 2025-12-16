@@ -76,36 +76,6 @@ a {
   font-weight: bold;
 }
 
-.options+.profile-group {
-  margin-top: 10px;
-}
-
-.options-profiles-group-header,
-.unit-categories-header {
-  font-weight: bold;
-  content: ": ";
-}
-
-.options-profiles-group-header::after,
-.unit-categories-header::after {
-  content: ": ";
-}
-
-.options-profiles-name:not(:last-child)::after {
-  content: ", ";
-  white-space: break-spaces;
-}
-
-.unit-category-name:not(:last-child)::after {
-  content: ", ";
-  white-space: break-spaces;
-}
-
-.options-profiles-name,
-.unit-category-name {
-  display: inline-block;
-}
-
 .section:empty {
   display: none;
 }
@@ -276,45 +246,47 @@ a {
 .card-header {
   padding: 3px;
   background-color: slategray;
+  color: white;
   position: relative;
   text-align: center;
+  font-family: Georgia, 'Times New Roman', Times, serif
 }
 
 .card-header .count {
-  color: white;
   position: absolute;
-  right: 15px;
-  font-family: "Georgia";
+  left: 15px;
+  /*font-family: "Georgia";*/
 }
 
-.card-header .count::before {
+.card-header .count::after {
   content: "x";
 }
 
 .card-header .name {
-  color: white;
   text-align: center;
   text-transform: uppercase;
-  font-family: Arial;
 }
 
 .card-header .custom-name {
-  color: white;
   font-weight: bold;
   text-align: center;
   text-transform: uppercase;
-  font-family: Arial;
 }
 
 .card-header .costs {
-  color: white;
   position: absolute;
+  right: 15px;
   text-transform: uppercase;
-  left: 15px;
 }
 
 .card-header .costs .cost-type {
   margin-left: 3px;
+}
+
+.card-header .team-type {
+  position: absolute;
+  left: 15px;
+  text-transform: uppercase;
 }
 
 .profile .name {
@@ -431,15 +403,15 @@ td {
   font-weight: bold;
 }
 
-.rules-block:not(:has(.rule)) {
-  display: none !important;
-}
-
 .rules {
   padding: 8px;
-  // background-color: rgb(233, 234, 236);
+  background-color: rgb(233, 234, 236);
   border: 2px solid gray;
   margin-bottom: 32px;
+}
+
+.rule {
+  page-break-inside: avoid;
 }
 
 .rule:not(:last-child),
@@ -458,6 +430,10 @@ td {
 }
 
 .rule-desc {}
+
+.option-name {
+  font-weight: 700;
+}
 
 .force-name {
   white-space: nowrap;

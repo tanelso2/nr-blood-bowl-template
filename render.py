@@ -23,6 +23,11 @@ COLUMN_ORDER = [
     'Keywords'
 ]
 
+RENDER_OPTIONS = {
+    'roster_table': True,
+    'player_cards': False,
+}
+
 
 def render(**context) -> str:
     env = Environment(
@@ -32,7 +37,9 @@ def render(**context) -> str:
     md = MarkdownIt()
     env.filters['md'] = md.render
     template = env.get_template('bb_cards.html.j2')
-    return template.render(COLUMN_ORDER=COLUMN_ORDER, **context)
+    return template.render(render_options=RENDER_OPTIONS,
+                           COLUMN_ORDER=COLUMN_ORDER, 
+                           **context)
 
 
 def get_selections(data: dict) -> list[dict]:
@@ -94,7 +101,18 @@ def dedupe_by(xs: Iterable[Any], transform: Callable | str) -> list:
 
 
 def characteristics_dict(characteristics: list[dict]) -> dict:
-    return { c['name']: c['$text'] for c in characteristics }
+    ret = {}
+    for c in characteristics:
+        name = c['name']
+        text = c.get('$text')
+        if not text:
+            match name:
+                case 'SPP' | 'Cost':
+                    text = '0'
+                case _:
+                    text = ''
+        ret[name] = text
+    return ret
 
 
 def cost_dict(costs: list[dict]) -> dict:
@@ -142,6 +160,7 @@ def merge_costs(costs_list: list[dict]) -> dict:
 @dataclass
 class Player:
     name: str
+    number: int
     profiles: list[Profile]
     costs: dict
     primary_category: Optional[str]
@@ -152,7 +171,7 @@ class Player:
     characteristics: dict
 
     @staticmethod
-    def parse(data: dict):
+    def parse(data: dict, idx=0):
         profiles = [Profile.parse(p) for p in data.get('profiles', [])]
         primary_profile = profiles[0] if profiles else None
         costs = cost_dict(data.get('costs', []))
@@ -176,13 +195,16 @@ class Player:
         if 'SPP' in total_costs:
             characteristics['SPP'] = str(total_costs['SPP'])
         characteristics['Player'] = data['name']
+        custom_name = data.get('customName')
+        number = idx + 1
         return Player(
             name=data['name'],
+            number=number,
             profiles=profiles,
             costs=total_costs,
             primary_category=primary_cat,
             category_names=category_names,
-            custom_name=data.get('customName'),
+            custom_name=custom_name,
             selections=selections,
             rules=all_rules,
             characteristics=characteristics
@@ -200,8 +222,30 @@ def get_players(data: dict) -> list[Player]:
     selections = get_selections(data)
     groups = group_by(selections, primary_category)
     players_data = groups.get('Player', [])
-    players = [Player.parse(p) for p in players_data]
+    players = [Player.parse(p, idx=idx) for idx, p in enumerate(players_data)]
     return players
+
+
+@dataclass
+class TeamOption:
+    name: str
+    selections: list[dict]
+
+    @property
+    def quantity(self) -> int:
+        # If no selections, default to 1
+        if not self.selections:
+            return 1
+        counts = [s.get('number', 1) for s in self.selections]
+        return sum(counts)
+
+    @staticmethod
+    def parse(data: dict):
+        return TeamOption(
+            name=data['name'],
+            selections=data.get('selections', [])
+        )
+
 
 
 def team_management_options(data: dict):
@@ -220,8 +264,8 @@ def team_management_options(data: dict):
                 special_rules.extend(sr.get('rules', []))
             special_rules.sort(key=lambda x: x['name'])
         else:
-            other_options.append(o)
-    other_options.sort(key=lambda x: x['name'])
+            other_options.append(TeamOption.parse(o))
+    other_options.sort(key=lambda x: x.name)
     return league, special_rules, other_options
 
 
@@ -230,9 +274,12 @@ def render_team(data: dict, include_css=True) -> str:
     players = get_players(data)
     profiles = get_profiles(data)
     name = data['roster']['name']
-    tv = data['roster']['costs'][0]['value']
+    tv_raw = data['roster']['costs'][0]['value']
+    tv = f"{tv_raw:,}"
+    team_type = data['roster']['forces'][0]['catalogueName']
     league, special_rules, options = team_management_options(data)
     return render(name=name, 
+                  team_type=team_type,
                   tv=tv,
                   league=league,  
                   special_rules=special_rules,

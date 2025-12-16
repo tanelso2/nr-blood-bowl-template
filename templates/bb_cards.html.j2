@@ -7,35 +7,79 @@
 {% endif %}
 </head>
 <body>
-  <!-- Team Info -->
-  <div class="title">
-    <span class="team-name"> {{ name }} </span>
-    <span>[{{ tv }}TV]</span>
-  </div>
-
-  <!-- Team Management -->
-  <div>Team League: {{ league }}</div>
-  <div>
-    {% for option in team_management_options %}
-    <div>{{ option.name }}: {{ option.selections[0].number }}</div>
-    {% endfor %}
-  </div>
-
-  <!-- Special Rules -->
-  {% if special_rules %}
-  <div class="special-rules">
-    <div class="section-header">Special Rules</div>
-    {% for rule in special_rules %}
-    <div class="rule removable">
-      <span class="rule-name">{{ rule.name }}</span>
-      <span class="rule-desc">{{ rule.description | md }}</span>
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %}
-
   <div class="section cards">
+    <!-- Team Info -->
+      <div class="card-header section-header">
+        <span class="team-type">{{ team_type | default('UNKNOWN') }}</span>
+        <span class="custom-name">{{ name }}</span>
+        <span class="costs">{{ tv }} TV</span>
+      </div>
+      <div class="team-option">
+        <span class="option-name">Team League: </span>
+        <span class="option-value">{{ league }}</span>
+      </div>
+      {% for option in team_management_options %}
+      <div class="team-option">
+        <span class="option-name">{{ option.name }}: </span>
+        <span class="option-value">{{ option.quantity }}</span>
+      </div>
+      {% endfor %}
+
+    <!-- Special Rules -->
+    {% if special_rules %}
+    <div class="card-wrapper" type="card">
+      <div class="rules">
+        <div class="card-header section-header">
+          <span class="name">Team Special Rules</span>
+        </div>
+        {% for rule in special_rules %}
+        <div class="rule nested">
+          <span class="rule-name">{{ rule.name }}</span>
+          <span class="rule-desc">{{ rule.description | md }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    
+    <!-- Simple Roster Table -->
+    {% if render_options.roster_table | default(True) %}
+    <div class="unit card-wrapper" type="card">
+      <table class="">
+        <tr class="card-header profile-group">
+          <th class="header characteristic small cell data">
+            <span class="value">#</span>
+          </th>
+          <th class="header characteristic small cell data">
+            <span class="value">Name</span>
+          </th>
+          {% for col in COLUMN_ORDER %}
+          <th class="header characteristic small cell data">
+            <span class="value"> {{ col }}</span>
+          </th>
+          {% endfor %}
+        </tr>
+        {% for player in players %}
+        <tr class="section profile row">
+          <td class="characteristic small cell data">
+            <span>{{ player.number }}</span>
+          </td>
+          <td class="characteristic small cell data">
+            <span>{{ player.custom_name or '___' }}</span>
+          </td>
+          {% for col in COLUMN_ORDER %}
+          <td class="characteristic small cell data">
+            <span class="value"> {{ player.characteristics[col] | default('') | md }}</span>
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    {% endif %}
+
     <!-- Players -->
+    {% if render_options.player_cards | default(True) %}
     {% for player in players %}
     <div class="unit card-wrapper" type="card">
       <table class="section card movable">
@@ -112,12 +156,15 @@
       </table>
     </div>
     {% endfor %}
+    {% endif %}
 
     <!-- Rules -->
     {% for rule in rules %}
-    <div class="rule removable">
-      <span class="rule-name">{{ rule.name }}</span>
-      <span class="rule-desc">{{ rule.description | md }}</span>
+    <div class="roster-rules">
+      <div class="rule removable">
+        <span class="rule-name">{{ rule.name }}</span>
+        <span class="rule-desc">{{ rule.description | md }}</span>
+      </div>
     </div>
     {% endfor %}
 </body>
