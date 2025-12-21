@@ -5,23 +5,8 @@ table,
   border-collapse: collapse;
 }
 
-@font-face {
-  font-family: "Tahoma";
-  src: url("/Tahoma.ttf") format(truetype);
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Tahoma";
-  src: url("https://www.newrecruit.eu/TahomaBold.ttf") format(truetype);
-  font-weight: bold;
-  font-style: normal;
-  font-variant: normal;
-}
-
 html {
-  font-family: "Tahoma";
+  font-family: "{{ font.name }}", {{ font.serif }};
   background-color: white;
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.3) rgba(0, 0, 0, 0);
@@ -429,7 +414,9 @@ td {
   content: ": ";
 }
 
-.rule-desc {}
+.rule-desc {
+  font-size: smaller;
+}
 
 .option-name {
   font-weight: 700;

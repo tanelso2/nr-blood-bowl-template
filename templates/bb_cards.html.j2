@@ -1,6 +1,9 @@
 <!-- vim: set ts=2 sw=2: -->
 <head>
 {% if include_css | default(True) %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="{{ GOOGLE_FONTS_URL }}" rel="stylesheet">
 <style>
   {% include 'style.css.j2' %} 
 </style>

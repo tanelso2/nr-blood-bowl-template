@@ -29,6 +29,22 @@ RENDER_OPTIONS = {
 }
 
 
+GOOGLE_FONTS_URL = "https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Noto+Serif:wght@100..900&display=swap"
+
+
+@dataclass
+class Font:
+    name: str
+    _serif: bool = True
+
+    @property
+    def serif(self) -> str:
+        return 'serif' if self._serif else 'sans-serif'
+
+
+CHOSEN_FONT = Font(name="Noto Serif")
+
+
 def render(**context) -> str:
     env = Environment(
         loader=FileSystemLoader('templates'),
@@ -38,6 +54,8 @@ def render(**context) -> str:
     env.filters['md'] = md.render
     template = env.get_template('bb_cards.html.j2')
     return template.render(render_options=RENDER_OPTIONS,
+                           font=CHOSEN_FONT,
+                           GOOGLE_FONTS_URL=GOOGLE_FONTS_URL,
                            COLUMN_ORDER=COLUMN_ORDER, 
                            **context)
 
